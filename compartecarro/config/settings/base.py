@@ -41,8 +41,10 @@ ROOT_URLCONF = "config.urls"
 
 WSGI_APPLICATION = "config.wsgi.application"
 
-# APPS
+# USER AUTHENTICATION
+AUTH_USER_MODEL = 'users.User'
 
+# APPS
 DJANGO_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -56,7 +58,7 @@ THIRD_PARTY_APPS = [
 ]
 
 LOCAL_APPS = [
-
+    "compartecarro.users.apps.UsersAppConfig",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
