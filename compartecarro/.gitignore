@@ -277,3 +277,5 @@ compartecarro/media/
 .env
 .envs/*
 !.envs/.local/
+
+migrations/

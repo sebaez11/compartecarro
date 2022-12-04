@@ -36,3 +36,9 @@ class User(BaseModel, AbstractUser):
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
+
+    def __str__(self):
+        return self.username
+
+    def get_short_name(self):
+        return self.username
