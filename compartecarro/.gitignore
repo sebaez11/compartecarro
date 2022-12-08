@@ -279,3 +279,5 @@ compartecarro/media/
 !.envs/.local/
 
 migrations/
+*.csv
+create-objects.py

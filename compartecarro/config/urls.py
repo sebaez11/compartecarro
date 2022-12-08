@@ -5,5 +5,12 @@ from django.urls import include, path
 
 urlpatterns = [
     path(settings.ADMIN_URL, admin.site.urls),
+    path(
+        'circles/', 
+        include(
+            ('compartecarro.circles.urls','circles'), 
+            namespace='circles'
+        )
+    ),
     
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
