@@ -5,37 +5,25 @@ from rest_framework.decorators import api_view
 # Models
 from compartecarro.circles.models import Circle
 
+# Serializers
+from compartecarro.circles.serializers import (
+    CircleSerializer,
+    CreateCircleSerializer
+)
+
 @api_view(['GET'])
 def list_circles(request):
     """List all circles with 'is_public' property equals True"""
 
     public_circles = Circle.objects.filter(is_public=True)
-    data = []
-
-    for circle in public_circles:
-        data.append({
-            'name': circle.name,
-            'slug_name': circle.slug_name,
-            'rides_offered': circle.rides_offered,
-            'rides_taken': circle.rides_taken,
-        })
+    serializer = CircleSerializer(public_circles, many=True)
     
-    return Response(data)
+    return Response(serializer.data)
 
 @api_view(['POST'])
 def create_circle(request):
     
-    name = request.data['name']
-    slug_name = request.data['slug_name']
-    about = request.data.get('about', '')
-    
-    circle = Circle.objects.create(name=name, slug_name=slug_name, about=about)
-
-    data = {
-        'name': circle.name,
-        'slug_name': circle.slug_name,
-        'about': circle.about,
-        'rides_offered': circle.rides_offered,
-    }
-
-    return Response(data)
+    serializer = CreateCircleSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    circle = serializer.save()
+    return Response(CircleSerializer(circle).data)
