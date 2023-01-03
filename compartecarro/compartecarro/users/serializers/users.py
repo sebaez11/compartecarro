@@ -79,7 +79,7 @@ class UserSignupSerializer(serializers.Serializer):
         password_validation.validate_password(password)
 
         if password != password_confirmation:
-            raise serializers.ValidationError('Passwords do not match')
+            raise serializers.ValidationError({'passwords': 'Passwords do not match'})
         
         return data
 
