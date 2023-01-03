@@ -32,7 +32,10 @@ class UserLoginSerializer(serializers.Serializer):
 
         user = authenticate(username=data["email"], password=data["password"])
         if not user:
-            raise serializers.ValidationError("Bad Credentials")
+            raise serializers.ValidationError({"credentials_error":"Bad Credentials"})
+
+        if not user.is_verified:
+            raise serializers.ValidationError({"verified_error":"User is not verified yet"})
 
         self.context['user'] = user
         
@@ -86,7 +89,7 @@ class UserSignupSerializer(serializers.Serializer):
     def create(self, data):
 
         data.pop("password_confirmation")
-        user = User.objects.create_user(**data)
+        user = User.objects.create_user(**data, is_verified=False)
         profile = Profile.objects.create(user=user)
 
         return user
