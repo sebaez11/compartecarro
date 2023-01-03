@@ -1,6 +1,8 @@
 # Django
-from django.core.validators import RegexValidator
 from django.contrib.auth import authenticate, password_validation
+from django.core.validators import RegexValidator
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
 
 # DRF
 from rest_framework.authtoken.models import Token
@@ -90,6 +92,29 @@ class UserSignupSerializer(serializers.Serializer):
 
         data.pop("password_confirmation")
         user = User.objects.create_user(**data, is_verified=False)
-        profile = Profile.objects.create(user=user)
-
+        Profile.objects.create(user=user)
+        self.send_confirmation_email(user)
         return user
+
+    def send_confirmation_email(self, user):
+        """Send an email to allow users to confirm accounts."""
+
+        verification_token = self.generate_verification_token(user)
+        
+        subject = f'Welcome @{user.username}! Verify your account to start using Comparte Carro'
+        from_email = 'Comparte Carro <noreply@compartecarro.com>'
+        content = render_to_string(
+            'emails/users/account_verification.html',
+            {
+                'token': verification_token,
+                'user': user
+            }
+        )
+        msg = EmailMultiAlternatives(subject, content, from_email, [user.email])
+        msg.attach_alternative(content, "text/html")
+        msg.send()
+
+    def generate_verification_token(self, user):
+        """Create a JWT Token that the user can use to verify its account."""
+
+        return 'abc'
