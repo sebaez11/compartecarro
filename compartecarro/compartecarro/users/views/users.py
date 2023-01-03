@@ -7,7 +7,8 @@ from rest_framework import status
 from compartecarro.users.serializers import (
     UserLoginSerializer,
     UserSignupSerializer,
-    UserModelSerializer
+    UserModelSerializer,
+    AccountVerificationSerializer
 )
 
 class UserLoginAPIView(APIView):
@@ -35,6 +36,19 @@ class UserSignUpAPIView(APIView):
 
         data = {
             "user": UserModelSerializer(user).data
+        }
+
+        return Response(data)
+
+
+class AccountVerificationAPIView(APIView):
+    
+    def post(self, request, *args, **kwargs):
+        serializer = AccountVerificationSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        data = {
+            'message': 'Congratulations, now go share some rides!'
         }
 
         return Response(data)

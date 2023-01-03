@@ -4,7 +4,8 @@ from django.urls import path
 # Views
 from compartecarro.users.views import (
     UserLoginAPIView,
-    UserSignUpAPIView
+    UserSignUpAPIView,
+    AccountVerificationAPIView
 )
 
 urlpatterns = [
@@ -18,6 +19,11 @@ urlpatterns = [
         route='signup/',
         view=UserSignUpAPIView.as_view(),
         name='signup'
+    ),
+    path(
+        route='verify/',
+        view=AccountVerificationAPIView.as_view(),
+        name='verify'
     ),
 
 ]

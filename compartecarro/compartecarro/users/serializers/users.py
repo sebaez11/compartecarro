@@ -3,6 +3,8 @@ from django.contrib.auth import authenticate, password_validation
 from django.core.validators import RegexValidator
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
+from django.utils import timezone
+from django.conf import settings
 
 # DRF
 from rest_framework.authtoken.models import Token
@@ -11,6 +13,11 @@ from rest_framework import serializers
 
 # Models
 from compartecarro.users.models import User, Profile
+
+# Utilities
+from datetime import timedelta
+import jwt
+
 
 class UserModelSerializer(serializers.ModelSerializer):
 
@@ -117,4 +124,37 @@ class UserSignupSerializer(serializers.Serializer):
     def generate_verification_token(self, user):
         """Create a JWT Token that the user can use to verify its account."""
 
-        return 'abc'
+        exp_date = timezone.now() + timedelta(days=3)
+        payload = {
+            'user': user.username,
+            'exp': int(exp_date.timestamp()),
+            'type': 'email_confirmation'
+        }
+        token = jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
+
+        return token
+
+    
+class AccountVerificationSerializer(serializers.Serializer):
+
+    token = serializers.CharField()
+
+    def validate_token(self, data):
+        try:
+            payload = jwt.decode(data, settings.SECRET_KEY, algorithms=["HS256"])
+        except jwt.ExpiredSignatureError:
+            raise serializers.ValidationError('Verification link has expired.')
+        except jwt.PyJWTError:
+            raise serializers.ValidationError('Invalid token')
+        if payload['type'] != 'email_confirmation':
+            raise serializers.ValidationError('Invalid token')
+        
+        self.context['payload'] = payload
+
+        return data
+
+    def save(self):
+        payload = self.context['payload']
+        user = User.objects.get(username=payload['user'])
+        user.is_verified = True
+        user.save()
