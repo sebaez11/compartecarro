@@ -11,6 +11,9 @@ from rest_framework.authtoken.models import Token
 from rest_framework.validators import UniqueValidator
 from rest_framework import serializers
 
+# Serializers
+from .profiles import ProfileModelSerializer
+
 # Models
 from compartecarro.users.models import User, Profile
 
@@ -21,6 +24,8 @@ import jwt
 
 class UserModelSerializer(serializers.ModelSerializer):
 
+    profile = ProfileModelSerializer(read_only=True)
+
     class Meta:
         model = User
         fields = (
@@ -28,7 +33,8 @@ class UserModelSerializer(serializers.ModelSerializer):
             'first_name',
             'last_name',
             'email',
-            'phone_number'
+            'phone_number',
+            'profile'
         )
 
 class UserLoginSerializer(serializers.Serializer):
