@@ -3,19 +3,21 @@ from rest_framework import mixins, viewsets
 from rest_framework.generics import get_object_or_404
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework import status
 
 # Models
 from compartecarro.circles.models import Circle, Membership, Invitation
 
 # Permissions
 from rest_framework.permissions import IsAuthenticated
-from compartecarro.circles.permissions import IsActiveCircleMember
+from compartecarro.circles.permissions import IsActiveCircleMember, IsSelfMember
 
 # Serializers
-from compartecarro.circles.serializers import MembershipModelSerializer
+from compartecarro.circles.serializers import MembershipModelSerializer, AddMemberSerializer
 
 
 class MembershipViewSet(mixins.ListModelMixin,
+                        mixins.CreateModelMixin,
                         mixins.RetrieveModelMixin,
                         mixins.DestroyModelMixin,
                         viewsets.GenericViewSet):
@@ -29,7 +31,12 @@ class MembershipViewSet(mixins.ListModelMixin,
 
     def get_permissions(self):
 
-        permissions = [IsAuthenticated, IsActiveCircleMember]
+        permissions = [IsAuthenticated, ]
+        if self.action != 'create':
+            permissions.append(IsActiveCircleMember)
+        if self.action == 'invitations':
+            permissions.append(IsSelfMember)
+
         return [permission() for permission in permissions]
 
     def get_queryset(self):
@@ -84,3 +91,15 @@ class MembershipViewSet(mixins.ListModelMixin,
         }
 
         return Response(data)
+
+    def create(self, request, *args, **kwargs):
+        serializer = AddMemberSerializer(
+            data=request.data,
+            context={'circle': self.circle, 'request': request}
+        )
+        serializer.is_valid(raise_exception=True)
+        member = serializer.save()
+
+        data = self.get_serializer(member).data
+
+        return Response(data, status=status.HTTP_201_CREATED)
