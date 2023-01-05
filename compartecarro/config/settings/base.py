@@ -62,6 +62,7 @@ THIRD_PARTY_APPS = [
 LOCAL_APPS = [
     "compartecarro.users.apps.UsersAppConfig",
     "compartecarro.circles.apps.CirclesAppConfig",
+    "compartecarro.rides.apps.RidesAppConfig",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
