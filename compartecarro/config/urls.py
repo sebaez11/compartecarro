@@ -19,5 +19,12 @@ urlpatterns = [
             namespace='users'
         )
     ),
+    path(
+        'rides/', 
+        include(
+            ('compartecarro.rides.urls','rides'), 
+            namespace='rides'
+        )
+    ),
     
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
